@@ -41,8 +41,8 @@ let rec main_word_en csv_data loop =
   if loop <= 0 then
     ()
   else
-    let () = Random.init loop in
-    let n = (Random.int loop) mod (List.length csv_data) + 1  in
+    let n = Random.int (List.length csv_data) + 1 in
+    let () = Printf.printf "%d\n" n in
     let data = WordList.get_data csv_data n in
     let en_str = WordList.get_en data in
     let () = PrintWord.print_ja data in
@@ -56,8 +56,8 @@ let rec main_word_ja csv_data loop =
   if loop <= 0 then
     ()
   else
-    let () = Random.init loop in
-    let n = (Random.int loop) mod (List.length csv_data) + 1  in
+    let n = Random.int (List.length csv_data) + 1 in
+    let () = Printf.printf "%d\n" n in
     let data = WordList.get_data csv_data n in
     let ja_lst = WordList.get_ja data in
     let () = PrintWord.print_en data in
@@ -126,6 +126,7 @@ let main =
   let end_num = OptionState.get_end () |> option_from (List.length raw_csv_data) |> (fun n -> n - 1) in
   let csv_data = raw_csv_data |> take end_num |> drop start_num in
   let n = OptionState.get_int () in
+  let () = Random.self_init () in
   let () =
     if OptionState.get_is_english () then
       main_word_en csv_data n
