@@ -13,6 +13,30 @@ let option_from x opt =
   | None -> x
 
 
+let rec take i lst =
+  match lst with
+  | []      -> []
+  | x :: xs -> (
+      if i < 0 then
+        []
+      else
+        x :: (take (i - 1) xs)
+  )
+
+
+let rec drop i lst =
+  if i < 0 then
+    lst
+  else
+    match lst with
+    | []      -> []
+    | x :: xs -> (
+        if i < 1 then
+          xs
+        else
+          drop (i - 1) xs
+    )
+
 let rec main_word_en csv_data loop =
   if loop <= 0 then
     ()
@@ -73,6 +97,13 @@ let arg_english () =
   OptionState.set_is_english true
 
 
+let arg_start n =
+  OptionState.set_start n
+
+let arg_end n =
+  OptionState.set_end n
+
+
 
 let arg_spec curdir =
   [
@@ -80,6 +111,8 @@ let arg_spec curdir =
     ("--version", Arg.Unit(arg_version)  , "Prints version");
     ("-f",     Arg.String (arg_input_file curdir), "Specify CSV file");
     ("-n",     Arg.Int (arg_int), "Number of times");
+    ("--start",Arg.Int (arg_start), "Number of start");
+    ("--end",  Arg.Int (arg_end), "Number of end");
     ("--ja", Arg.Unit(arg_japanese), "Japanese");
     ("--en", Arg.Unit(arg_english), "English");
   ]
@@ -88,7 +121,10 @@ let arg_spec curdir =
 let main =
   let curdir = Sys.getcwd () in
   let () = Arg.parse (arg_spec curdir) (arg_input_file curdir) "" in
-  let csv_data = OptionState.get_input_file () |> option_from "" |> get_csv_data in
+  let raw_csv_data = OptionState.get_input_file () |> option_from "" |> get_csv_data in
+  let start_num = OptionState.get_start () |> option_from 1 |> (fun n -> n - 1) in
+  let end_num = OptionState.get_end () |> option_from (List.length raw_csv_data) |> (fun n -> n - 1) in
+  let csv_data = raw_csv_data |> take end_num |> drop start_num in
   let n = OptionState.get_int () in
   let () =
     if OptionState.get_is_english () then
